@@ -2,9 +2,35 @@
 title: "Homework 3"
 author: "Yuki Joyama"
 date: "2023-10-23"
-output: github_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = F, message = F)
 ```
+
+```{r}
+library(tidyverse)
+
+# import data set from {MASS} package
+library(MASS)
+df = birthwt
+```
+
+# Problem 1
+```{r}
+n = length(pull(df, lwt))
+x = mean(pull(df, lwt))
+s = sd(pull(df, lwt))
+
+lower_ci = x - qt(.975, df = n-1)*(s/sqrt(n))
+upper_ci = x + qt(.975, df = n-1)*(s/sqrt(n))
+```
+Let n = `r length(pull(df, lwt))`, $\bar{X}$ (sample mean) = `r round(mean(pull(df, lwt)), 2)`, $s$ (sample standard deviation) = `r round(sd(pull(df, lwt)), 2)`
+
+a) Because we do not know the true population variance $\sigma^2$, 95% confidence interval of true mean weight can be obtained by the following:  
+$$\bar{X}-t_{n-1,1-\alpha/2}\frac{s}{\sqrt{n}}, \bar{X}+t_{n-1,1-\alpha/2}\frac{s}{\sqrt{n}}$$
+
+Thus, 95% confidence interval is (`r round(lower_ci, 2)`, `r round(upper_ci, 2)`)
+
+b) 
