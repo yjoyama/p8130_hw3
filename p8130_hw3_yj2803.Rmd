@@ -2,7 +2,7 @@
 title: "Homework 3"
 author: "Yuki Joyama"
 date: "2023-10-23"
-output: pdf_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -33,4 +33,16 @@ $$\bar{X}-t_{n-1,1-\alpha/2}\frac{s}{\sqrt{n}}, \bar{X}+t_{n-1,1-\alpha/2}\frac{
 
 Thus, 95% confidence interval is (`r round(lower_ci, 2)`, `r round(upper_ci, 2)`)
 
-b) 
+b) We are 95% confident that the true mean weight of American women will be between (`r round(lower_ci, 2)`, `r round(upper_ci, 2)`).
+
+c) The statement is not valid because 171 pounds is not included in the 95% confidence interval.
+
+# Problem 2
+
+
+
+
+
+
+
+
