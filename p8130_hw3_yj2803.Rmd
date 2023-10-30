@@ -141,18 +141,139 @@ Thus, 99% CI is (`r round(lower_ci, 2)`, `r round(upper_ci, 2)`)
 
 Because 0.20 is not included in the 99% CI, we can conclude that we are 99% confident that our data does not support this claim. 
 
-b) $\alpha=0.01$  
+b) $\alpha=0.1$  
+
+I will perform one-sample binomial test for proportions.  
 $H_0$: $p=p_0$    
-$H_1$: $p <p_0$   
+$H_1$: $p <p_0$  
 
 Test statistic is $z=\frac{\hat{p}-p_0}{\sqrt{p_0(1-p_0)/n}}=$ `r round(z, 2)` ~ N(0, 1)
 
 $z_{\alpha}=$ `r round(qnorm(.1), 2)` > $z$  
 Therefore, we reject the null hypothesis and accept $H_1$. 
-We can conclude that at 10% significant level, the true proportion is indeed less than the claimed 20%. 
+We can conclude that at 10% significant level, the true proportion is indeed less than the claimed 20%.  
+
 # Problem 4
+```{r}
+df_smoking = df |> 
+  filter(smoke == 1) |> 
+  group_by(ui) |> 
+  summarise(n = n()) |> 
+  mutate(total = sum(n))
 
+df_nsmoking = df |> 
+  filter(smoke == 0) |> 
+  group_by(ui) |> 
+  summarise(n = n()) |> 
+  mutate(total = sum(n))
 
+p1 = df_smoking |> 
+  filter(ui == 1) |> 
+  mutate(p = n / total) |> 
+  pull(p)
+
+p2 = df_nsmoking |> 
+  filter(ui == 1) |> 
+  mutate(p = n / total) |> 
+  pull(p)
+
+n1 = df |> 
+  drop_na(smoke) |> 
+  filter(smoke == 1) |> 
+  nrow()
+
+n2 = df |> 
+  drop_na(smoke) |> 
+  filter(smoke == 0) |> 
+  nrow()
+
+p_hat = (n1*p1 + n2*p2)/(n1+n2)
+q_hat = 1 - p_hat
+
+z = (p1-p2)/sqrt(p_hat * q_hat * (1/n1 + 1/n2))
+```
+
+$\alpha = 0.01$  
+Let $p_1$ and $p_2$ be the proportion of pregnant American women having uterine irritability in smoking and non-smoking groups.   
+
+I will perform two-sample test for binomial proportion.   
+$H_0$: $p=p_0$      
+$H_1$: $p\neq p_0$
+
+Now, $\hat{p_1}=$ `r round(p1, 2)`, $\hat{p_2}=$ `r round(p2, 2)`, $n_1=$ `r round(n1, 2)`, $n_2=$ `r round(n2, 2)`   
+
+$\hat{p}=\frac{n_1\hat{p_1}+n_2\hat{p_2}}{n_1+n_2}=$ `r round(p_hat, 2)`, $\hat{q}=1-\hat{p}=$ `r round(q_hat, 2)`
+
+Test statistic is $z=\frac{\hat{p_1}-\hat{p_2}}{\sqrt{\hat{p}\hat{q}(\frac{1}{n_1}+\frac{1}{n_2})}}=$ `r round(z, 2)` ~ N(0,1)  
+
+$z_{1-\alpha/2}=$ `r round(qnorm(.995), 2)` > z  
+Thus, we fail to reject the null hypothesis.   
+
+We can conclude that the proportions of uterine irritability in the pregnant women are not different in smoking and non-smoking group at 1% significance level.  
+
+# Problem 5
+```{r}
+df1 = df |> 
+  filter(race == 1) 
+
+df2 = df |> 
+  filter(race == 2) 
+
+df3 = df |> 
+  filter(race == 3) 
+
+sigma1 = sd(pull(df1, bwt))^2
+sigma2 = sd(pull(df2, bwt))^2
+sigma3 = sd(pull(df3, bwt))^2
+```
+
+a) There is more than two levels in race variable so one-way ANOVA would be appropriate in this case.  
+
+b) 
+- There are k populations of interest (k > 2)  
+This is met because k = 3.  
+
+- The samples are drawn independently from the underlying populations   
+This is met. 
+
+- Homoscedasticity
+```{r}
+bartlett.test(bwt ~ race, data = df)
+```
+Given the result from Bartlett test, (p-value > 0.05), we can say that the three race groups have equal variances. 
+
+- The distributions of the error terms are normal  
+```{r results=F}
+aov_one = aov(bwt ~ race, data = df)
+aov_residuals = residuals(object = aov_one)
+```
+
+```{r}
+# Shapiro-Wilk test
+shapiro.test(x = aov_residuals)
+```
+
+Shapiro-Wilk test reveals that p-value > 0.05, so we can say that the error terms are normally distributed.  
+
+c) $\alpha = 0.05$  
+Let $\mu_1$, $\mu_2$, $\mu_3$ be the mean birth weight in each race levels.  
+$H_0$: $\mu_1=\mu_2=\mu_3$  
+$H_1$: at least two of the birth weight means in each race differ  
+
+```{r}
+summary(aov_one)
+```
+
+Given the result from one-way ANOVA test, because p-value < 0.05, we reject the null hypothesis and accept the alternative hypothesis.    
+At 5% confidence level, we can say that at least two of the birth weight means in each race category differ.  
+
+d) 
+```{r}
+pairwise.t.test(df$bwt, df$race, p.adjust.method = "bonferroni") 
+```
+
+The adjusted p-value for the mean difference in birth weight between race 1 and 2 is 0.049; race 1 and 3 is 0.029; race 2 and 3 is 1.000.  
+This indicates that at 5% significance level, means of birth weight differ between race 1 and 2, and race 1 and 3.
 
 
 
